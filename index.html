@@ -1,17 +1,286 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wa wa</title>
+<meta charset="UTF-8">
+<title>Search Hub Pro</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#0f172a;
+color:white;
+}
+
+header{
+display:flex;
+align-items:center;
+padding:10px;
+background:#020617;
+}
+
+#logo{
+font-weight:bold;
+margin-right:15px;
+}
+
+#searchBar{
+flex:1;
+display:flex;
+}
+
+#searchInput{
+flex:1;
+padding:10px;
+border:none;
+outline:none;
+border-radius:6px 0 0 6px;
+}
+
+#goBtn{
+padding:10px 15px;
+border:none;
+background:#2563eb;
+color:white;
+cursor:pointer;
+border-radius:0 6px 6px 0;
+}
+
+button{
+margin-left:8px;
+padding:8px 12px;
+border:none;
+border-radius:6px;
+background:#1e293b;
+color:white;
+cursor:pointer;
+}
+
+#tabs{
+display:flex;
+background:#020617;
+border-bottom:1px solid #1e293b;
+}
+
+.tab{
+padding:8px 15px;
+cursor:pointer;
+border-right:1px solid #1e293b;
+}
+
+.tab.active{
+background:#1e293b;
+}
+
+#home{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+height:80vh;
+text-align:center;
+}
+
+#bookmarks{
+margin-top:20px;
+}
+
+.bookmark{
+background:#1e293b;
+padding:6px 10px;
+margin:5px;
+display:inline-block;
+cursor:pointer;
+border-radius:6px;
+}
+
+#settings{
+position:fixed;
+right:20px;
+top:60px;
+background:#020617;
+padding:15px;
+border-radius:8px;
+display:none;
+}
+
+</style>
 </head>
+
 <body>
 
-    <h1>Welcome, welcome to city 17, you have chosen or have been chosen</h1>
-    <input type="text", id="textbox"/>
-    <input type="button", value="submit", id="submitButton"/>
-  <p id="textChange">value</p>
+<header>
 
-    <script src="script.js"></script>
+<div id="logo">Search Hub Pro</div>
+
+<div id="searchBar">
+<input id="searchInput" placeholder="Search or enter URL">
+<button id="goBtn">Go</button>
+</div>
+
+<button onclick="newTab()">New Tab</button>
+<button onclick="toggleSettings()">⚙</button>
+
+</header>
+
+<div id="tabs"></div>
+
+<div id="home">
+
+<h1>Search Hub</h1>
+<p>Search the web instantly</p>
+
+<div id="bookmarks"></div>
+
+</div>
+
+<div id="settings">
+
+<h3>Settings</h3>
+
+<label>
+<input type="checkbox" id="darkToggle" checked>
+Dark Mode
+</label>
+
+<br><br>
+
+<button onclick="addBookmark()">Add Bookmark</button>
+
+</div>
+
+<script>
+
+let tabs=[]
+let currentTab=0
+
+function newTab(){
+
+tabs.push("home")
+currentTab=tabs.length-1
+
+renderTabs()
+showHome()
+
+}
+
+function renderTabs(){
+
+let tabBar=document.getElementById("tabs")
+tabBar.innerHTML=""
+
+tabs.forEach((t,i)=>{
+
+let tab=document.createElement("div")
+
+tab.className="tab"+(i===currentTab?" active":"")
+
+tab.innerText="Tab "+(i+1)
+
+tab.onclick=()=>{
+
+currentTab=i
+
+renderTabs()
+
+}
+
+tabBar.appendChild(tab)
+
+})
+
+}
+
+function search(){
+
+let q=document.getElementById("searchInput").value
+
+if(q.startsWith("http") || q.includes(".")){
+window.open(q,"_blank")
+}else{
+window.open("https://duckduckgo.com/?q="+encodeURIComponent(q),"_blank")
+}
+
+}
+
+document.getElementById("goBtn").onclick=search
+
+document.getElementById("searchInput").addEventListener("keypress",e=>{
+if(e.key==="Enter") search()
+})
+
+function toggleSettings(){
+
+let s=document.getElementById("settings")
+
+s.style.display=s.style.display==="block"?"none":"block"
+
+}
+
+document.getElementById("darkToggle").onchange=function(){
+
+if(this.checked){
+document.body.style.background="#0f172a"
+document.body.style.color="white"
+}else{
+document.body.style.background="white"
+document.body.style.color="black"
+}
+
+}
+
+function addBookmark(){
+
+let url=document.getElementById("searchInput").value
+
+if(!url) return
+
+let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"[]")
+
+bookmarks.push(url)
+
+localStorage.setItem("bookmarks",JSON.stringify(bookmarks))
+
+loadBookmarks()
+
+}
+
+function loadBookmarks(){
+
+let container=document.getElementById("bookmarks")
+
+container.innerHTML=""
+
+let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"[]")
+
+bookmarks.forEach(b=>{
+
+let div=document.createElement("div")
+
+div.className="bookmark"
+
+div.innerText=b
+
+div.onclick=()=>window.open(b,"_blank")
+
+container.appendChild(div)
+
+})
+
+}
+
+function showHome(){
+
+document.getElementById("home").style.display="flex"
+
+}
+
+loadBookmarks()
+
+newTab()
+
+</script>
+
 </body>
 </html>
